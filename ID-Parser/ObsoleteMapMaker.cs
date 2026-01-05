@@ -8,8 +8,8 @@ using RE_Editor.Common.PakModels.Hashing;
 namespace RE_Editor.ID_Parser;
 
 public static class ObsoleteMapMaker {
-    public const string BASE_PROJ_PATH   = @"..\..\..";
-    public const string STRUCT_JSON_PATH = $@"{BASE_PROJ_PATH}\Dump-Parser\Output\{PathHelper.CONFIG_NAME}\rsz{PathHelper.CONFIG_NAME}.json";
+    public static readonly string BASE_PROJ_PATH   = RepoPaths.RepoRoot;
+    public static readonly string STRUCT_JSON_PATH = RepoPaths.PathFromRepo("Dump-Parser", "Output", PathHelper.CONFIG_NAME, $"rsz{PathHelper.CONFIG_NAME}.json");
 
     private static readonly Regex EXTENSION = new(@"^.*?\.([^\.]+)\.\d+$");
 

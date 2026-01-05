@@ -10,12 +10,12 @@ using RE_Editor.Generator.Models;
 namespace RE_Editor.Generator;
 
 public partial class GenerateFiles {
-    public const  string BASE_GEN_PATH    = @"..\..\..\Generated"; // @"C:\Temp\Gen"
-    public const  string BASE_PROJ_PATH   = @"..\..\..";
-    public const  string STRUCT_JSON_PATH = $@"{BASE_PROJ_PATH}\Dump-Parser\Output\{PathHelper.CONFIG_NAME}\rsz{PathHelper.CONFIG_NAME}.json";
-    public const  string ENUM_GEN_PATH    = $@"{BASE_GEN_PATH}\Enums\{PathHelper.CONFIG_NAME}";
-    public const  string STRUCT_GEN_PATH  = $@"{BASE_GEN_PATH}\Structs\{PathHelper.CONFIG_NAME}";
-    private const string ASSETS_DIR       = $@"{BASE_PROJ_PATH}\RE-Editor\Data\{PathHelper.CONFIG_NAME}\Assets";
+    public static readonly string BASE_PROJ_PATH   = RepoPaths.RepoRoot;
+    public static readonly string BASE_GEN_PATH    = RepoPaths.PathFromRepo("Generated");
+    public static readonly string STRUCT_JSON_PATH = RepoPaths.PathFromRepo("Dump-Parser", "Output", PathHelper.CONFIG_NAME, $"rsz{PathHelper.CONFIG_NAME}.json");
+    public static readonly string ENUM_GEN_PATH    = RepoPaths.PathFromRepo("Generated", "Enums", PathHelper.CONFIG_NAME);
+    public static readonly string STRUCT_GEN_PATH  = RepoPaths.PathFromRepo("Generated", "Structs", PathHelper.CONFIG_NAME);
+    private static readonly string ASSETS_DIR       = RepoPaths.PathFromRepo("RE-Editor", "Data", PathHelper.CONFIG_NAME, "Assets");
     public const  string ENUM_REGEX       = $@"namespace ((?:{ROOT_STRUCT_NAMESPACE}::[^ ]+|{ROOT_STRUCT_NAMESPACE}|via::[^ ]+|via|goatree::[^ ]+|goatree)) {{\s+(?:\/\/ (\[Flags\])\s+)?enum ([^ ]+) ({{[^}}]+}})"; //language=regexp
 
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
@@ -161,6 +161,7 @@ public partial class GenerateFiles {
         "app.snd_user_data.SoundMusicGameFlowSettings.GameFlowMusicAction`",
         "app.user_data.ConcertLightSetting.cSeasonPattern`",
         "app.user_data.PorterRopesData`",
+        "app.user_data.NpcMatrixDataBase`",
         "soundlib.SoundStateApp`",
         "soundlib.SoundSwitchApp`",
         "System.Nullable`",
@@ -319,6 +320,11 @@ public partial class GenerateFiles {
         }
         if (useWhitelist || useGreylist) {
             UpdateUsingCounts();
+            // Constants and other handwritten code may reference enums directly even if no whitelisted struct
+            // references them. Keep all parsed enums so whitelist builds still compile.
+            foreach (var enumType in enumTypes.Values) {
+                enumType.useCount = Math.Max(enumType.useCount, 1);
+            }
             RemoveUnusedTypes();
             UpdateButtons();
         }
@@ -594,6 +600,9 @@ public partial class GenerateFiles {
                || key.ContainsIgnoreCase("ItemDefinitionUserData")
                || key.ContainsIgnoreCase("ItemUseResult")
                || key.ContainsIgnoreCase("ItemID");
+    #elif MHWS
+        return WHITELIST.Contains(key)
+               || key.StartsWith("App_user_data_", StringComparison.Ordinal);
 #else
         return WHITELIST.Contains(key);
 #endif
@@ -785,29 +794,18 @@ public partial class GenerateFiles {
 
     public static void DoWithConsoleProgressCount<T>(IList<T> thingsToDo, Action<T> doThing, Func<int, int, string> progressFormat) {
         var count = thingsToDo.Count;
-        var now   = DateTime.Now;
+        var nextLogAt = DateTime.Now.AddSeconds(15);
         Global.Log("");
 
         for (var i = 0; i < thingsToDo.Count; i++) {
-            var newNow = DateTime.Now;
-            if (newNow > now.AddSeconds(1)) {
-                try {
-                    Console.SetCursorPosition(0, Console.CursorTop - 1);
-                } catch (Exception) {
-                    // Breaks tests so just ignore for those.
-                }
+            var now = DateTime.Now;
+            if (now >= nextLogAt) {
                 Global.Log(progressFormat(i, count));
-                now = newNow;
+                nextLogAt = now.AddSeconds(15);
             }
 
             var structType = thingsToDo[i];
             doThing(structType);
-        }
-
-        try {
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
-        } catch (Exception) {
-            // Breaks tests so just ignore for those.
         }
         Global.Log(progressFormat(count, count));
     }

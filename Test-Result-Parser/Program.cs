@@ -4,9 +4,9 @@ using TrxFileParser;
 namespace RE_Editor.Test_Result_Parser;
 
 public static class Program {
-    public const  string BASE_PROJ_PATH    = @"..\..\..";
-    private const string TEST_RESULTS_PATH = $@"{BASE_PROJ_PATH}\TestResults\{PathHelper.CONFIG_NAME}\Results.trx";
-    private const string ASSETS_DIR        = $@"{BASE_PROJ_PATH}\RE-Editor\Data\{PathHelper.CONFIG_NAME}\Assets";
+    public static readonly string BASE_PROJ_PATH     = RepoPaths.RepoRoot;
+    private static readonly string TEST_RESULTS_PATH = RepoPaths.PathFromRepo("TestResults", PathHelper.CONFIG_NAME, "Results.trx");
+    private static readonly string ASSETS_DIR        = RepoPaths.PathFromRepo("RE-Editor", "Data", PathHelper.CONFIG_NAME, "Assets");
 
     public static void Main() {
         var          results  = TrxDeserializer.Deserialize(TEST_RESULTS_PATH);

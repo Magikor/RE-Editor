@@ -6,9 +6,17 @@ using RE_Editor.Common;
 namespace RE_Editor.Dump_Parser;
 
 public static class Program {
-    public const  string BASE_PROJ_PATH = @"..\..\..";
+    public static readonly string BASE_PROJ_PATH = RepoPaths.RepoRoot;
     private const string SCRIPTS_DIR    = $@"{PathHelper.REFRAMEWORK_PATH}\reversing\rsz";
-    private const string OUTPUT_DIR     = $@"{BASE_PROJ_PATH}\Dump-Parser\Output\{PathHelper.CONFIG_NAME}";
+    private static readonly string OUTPUT_DIR = RepoPaths.PathFromRepo("Dump-Parser", "Output", PathHelper.CONFIG_NAME);
+
+    private static string GetPythonExe() {
+        var configured = PathHelper.PYTHON38_PATH;
+        if (!string.IsNullOrWhiteSpace(configured) && File.Exists(configured)) {
+            return configured;
+        }
+        return "python";
+    }
 
     public static int Main(string[] args) {
         var mode = ParseArgs(args);
@@ -16,7 +24,7 @@ public static class Program {
 
         if (mode is Mode.PART1 or Mode.ALL) {
             Console.WriteLine("Running part 1...");
-            var processStartInfo = new ProcessStartInfo(PathHelper.PYTHON38_PATH) {
+            var processStartInfo = new ProcessStartInfo(GetPythonExe()) {
                 WorkingDirectory = OUTPUT_DIR,
                 ArgumentList = {
                     $@"{SCRIPTS_DIR}\emulation-dumper.py",
@@ -29,7 +37,7 @@ public static class Program {
 
         if (mode is Mode.PART2 or Mode.ALL) {
             Console.WriteLine("Running part 2...");
-            var processStartInfo = new ProcessStartInfo(PathHelper.PYTHON38_PATH) {
+            var processStartInfo = new ProcessStartInfo(GetPythonExe()) {
                 WorkingDirectory = OUTPUT_DIR,
                 ArgumentList = {
                     $@"{SCRIPTS_DIR}\non-native-dumper.py",
@@ -53,13 +61,15 @@ public static class Program {
             Log($"Pulling: {PathHelper.R_EASY_RSZ}");
             using var    client  = new HttpClient();
             var          json    = client.GetStringAsync(PathHelper.R_EASY_RSZ).Result;
-            const string outFile = $@"{OUTPUT_DIR}\rsz{PathHelper.CONFIG_NAME}.json";
+            var outFile = Path.Combine(OUTPUT_DIR, $"rsz{PathHelper.CONFIG_NAME}.json");
             File.WriteAllText(outFile, json);
             Log($"Wrote: {outFile}");
         }
 
-        Console.WriteLine("Press any key to continue...");
-        Console.ReadKey();
+        if (Debugger.IsAttached && Environment.UserInteractive && !Console.IsInputRedirected) {
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
         return 0;
     }
 

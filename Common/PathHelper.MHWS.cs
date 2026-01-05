@@ -6,13 +6,14 @@ namespace RE_Editor.Common;
 
 public static partial class PathHelper {
     public const string CONFIG_NAME      = "MHWS";
-    public const string CHUNK_PATH       = @"V:\MHWilds\re_chunk_000";
-    public const string GAME_PATH        = @"O:\SteamLibrary\steamapps\common\MonsterHunterWilds";
+    // User-local paths (adjust to your install)
+    public const string CHUNK_PATH       = @"C:\\Program Files (x86)\\Steam\\steamapps\\common\\MonsterHunterWilds\\re_chunk_000";
+    public const string GAME_PATH        = @"C:\\Program Files (x86)\\Steam\\steamapps\\common\\MonsterHunterWilds";
     public const string GAME_PATH_MSG    = "";
     public const string EXE_PATH         = $@"{GAME_PATH}\MonsterHunterWilds_dump.exe";
     public const string IL2CPP_DUMP_PATH = $@"{GAME_PATH}\il2cpp_dump.json";
     public const string ENUM_HEADER_PATH = $@"{GAME_PATH}\Enums_Internal.hpp";
-    public const string REFRAMEWORK_PATH = @"R:\Games\Monster Hunter Rise\REFramework";
+    public const string REFRAMEWORK_PATH = @"d:\MHWS\REFramework";
     public const string MODS_PATH        = @"R:\Games\Monster Hunter Wilds\Mods";
     public const string FLUFFY_MODS_PATH = @"R:\Games\Monster Hunter Wilds\FMM\Games\MonsterHunterWilds\Mods";
     public const string PAK_LIST         = @"R:\Games\Monster Hunter Wilds\MHWs.list";

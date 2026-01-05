@@ -483,7 +483,10 @@ public static class Extensions {
         name = name.Replace('<', '_')
                    .Replace(">", "")
                    .Replace('`', '_')
-                   .Replace(',', '_');
+                   .Replace(',', '_')
+                   // Generic parameter placeholders can appear as <!0>, <!1>, etc.
+                   // '!' is not a valid identifier character in C#, so normalize it.
+                   .Replace('!', 'T');
 
         // snow.enemy.aifsm.EnemyCheckThinkCounter`1<snow.enemy.em001.Em001Define.ThinkCounterEnum>
         // becomes
@@ -501,7 +504,7 @@ public static class Extensions {
         Debug.Assert(!name.Contains('<'), source);
         Debug.Assert(!name.Contains('>'), source);
         Debug.Assert(!name.Contains(','), source);
-        // Debug.Assert(!name.Contains('!'), source); Catches too many things too early. Most are eliminated anyways.
+        Debug.Assert(!name.Contains('!'), source);
 
         if (name == "System_UInt32") name = "GenericWrapper<uint>";
         if (name == "System_Single") name = "float";

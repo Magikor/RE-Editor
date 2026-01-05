@@ -7,10 +7,10 @@ using RE_Editor.Common;
 namespace RE_Editor.ID_Parser;
 
 public static partial class Program {
-    public const  string BASE_PROJ_PATH      = @"..\..\..";
-    private const string CONSTANTS_DIR       = $@"{BASE_PROJ_PATH}\RE-Editor\Constants\{PathHelper.CONFIG_NAME}";
-    public const  string ASSETS_DIR          = $@"{BASE_PROJ_PATH}\RE-Editor\Data\{PathHelper.CONFIG_NAME}\Assets";
-    public const  string DETECTOR_ASSETS_DIR = $@"{BASE_PROJ_PATH}\Obsolete-Detector\Data\{PathHelper.CONFIG_NAME}\Assets";
+    public static readonly string BASE_PROJ_PATH      = RepoPaths.RepoRoot;
+    private static readonly string CONSTANTS_DIR       = RepoPaths.PathFromRepo("RE-Editor", "Constants", PathHelper.CONFIG_NAME);
+    public static readonly string ASSETS_DIR           = RepoPaths.PathFromRepo("RE-Editor", "Data", PathHelper.CONFIG_NAME, "Assets");
+    public static readonly string DETECTOR_ASSETS_DIR  = RepoPaths.PathFromRepo("Obsolete-Detector", "Data", PathHelper.CONFIG_NAME, "Assets");
 
     public static void Main(string[] args) {
         if (args.Contains("obsoleteMap")) {
